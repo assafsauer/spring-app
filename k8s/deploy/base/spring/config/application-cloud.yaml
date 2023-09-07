@@ -1,0 +1,14 @@
+app:
+  hello: "Hello from K8s, %s!"
+
+management:
+  endpoints:
+    web:
+      # https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.endpoints.exposing
+      exposure:
+        include:
+          - health
+          - prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

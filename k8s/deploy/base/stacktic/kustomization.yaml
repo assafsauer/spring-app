@@ -1,0 +1,13 @@
+resources:
+  - namespace.yaml
+  - service-account.yaml
+
+secretGenerator:
+  - name: registry-credential
+    namespace: stacktic
+    files:
+      - .dockerconfigjson=secret/registry.json
+    type: kubernetes.io/dockerconfigjson
+
+generatorOptions:
+  disableNameSuffixHash: true

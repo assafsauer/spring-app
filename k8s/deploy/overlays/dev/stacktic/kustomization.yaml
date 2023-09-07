@@ -1,0 +1,10 @@
+resources:
+  - ../../../base/stacktic
+
+secretGenerator:
+  - name: registry-credential
+    namespace: stacktic
+    behavior: replace
+    files:
+      - .dockerconfigjson=secret/registry.json
+    type: kubernetes.io/dockerconfigjson

@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spring-kaniko
+spec:
+  template:
+    spec:
+      containers:
+        - name: kaniko
+          image: gcr.io/kaniko-project/executor:v1.9.1
+          args:
+            - "--context=git://github.com/beeNotice/stacktic-output.git#refs/heads/main"
+            - "--context-sub-path=spring"
+            - "--destination=index.docker.io/beenotice/spring:0.0.1-SNAPSHOT"
+          env:
+            - name: GIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: git-credential
+                  key: password
+            - name: GIT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: git-credential
+                  key: username
+          volumeMounts:
+            - name: kaniko-secret
+              mountPath: /kaniko/.docker
+      restartPolicy: Never
+      volumes:
+        - name: kaniko-secret
+          secret:
+            secretName: registry-credential
+            items:
+              - key: .dockerconfigjson
+                path: config.json

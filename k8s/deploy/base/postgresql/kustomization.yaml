@@ -1,0 +1,16 @@
+resources:
+  - namespace.yaml
+  - postgresql.yaml
+
+secretGenerator:
+  - name: postgresql-initdb
+    namespace: postgresql
+    files:
+      - config/initdb.sql
+  - name: postgresql-admin-password
+    namespace: postgresql
+    envs:
+      - secret/postgresql.env
+
+generatorOptions:
+  disableNameSuffixHash: true

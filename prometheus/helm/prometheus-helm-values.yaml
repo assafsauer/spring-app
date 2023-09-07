@@ -1,0 +1,7 @@
+prometheus:
+  additionalScrapeConfigs:
+    enabled: true
+    type: external
+    external:
+      name: prometheus-scrape-config
+      key: additional-scrape-configs.yaml

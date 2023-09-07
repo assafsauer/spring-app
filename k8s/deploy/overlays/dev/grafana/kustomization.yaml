@@ -1,0 +1,9 @@
+resources:
+  - ../../../base/grafana
+
+secretGenerator:
+  - name: grafana-admin-password
+    namespace: grafana
+    behavior: replace
+    envs:
+      - secret/grafana.env

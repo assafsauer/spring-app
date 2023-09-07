@@ -1,0 +1,2025 @@
+---
+# Source: crds/custom-resource-definitions.yaml
+# Copyright VMware, Inc.
+# SPDX-License-Identifier: APACHE-2.0
+
+# CRDs source: https://github.com/Kong/charts/blob/main/charts/kong/crds/custom-resource-definitions.yaml (version 2.24.0)
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: ingressclassparameterses.configuration.konghq.com
+spec:
+  group: configuration.konghq.com
+  names:
+    kind: IngressClassParameters
+    listKind: IngressClassParametersList
+    plural: ingressclassparameterses
+    singular: ingressclassparameters
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: IngressClassParameters is the Schema for the IngressClassParameters
+          API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec is the IngressClassParameters specification.
+            properties:
+              enableLegacyRegexDetection:
+                default: false
+                description: EnableLegacyRegexDetection automatically detects if ImplementationSpecific
+                  Ingress paths are regular expression paths using the legacy 2.x
+                  heuristic. The controller adds the "~" prefix to those paths if
+                  the Kong version is 3.0 or higher.
+                type: boolean
+              serviceUpstream:
+                default: false
+                description: Offload load-balancing to kube-proxy or sidecar.
+                type: boolean
+            type: object
+        type: object
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: kongclusterplugins.configuration.konghq.com
+spec:
+  group: configuration.konghq.com
+  names:
+    categories:
+    - kong-ingress-controller
+    kind: KongClusterPlugin
+    listKind: KongClusterPluginList
+    plural: kongclusterplugins
+    shortNames:
+    - kcp
+    singular: kongclusterplugin
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: Name of the plugin
+      jsonPath: .plugin
+      name: Plugin-Type
+      type: string
+    - description: Age
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: Indicates if the plugin is disabled
+      jsonPath: .disabled
+      name: Disabled
+      priority: 1
+      type: boolean
+    - description: Configuration of the plugin
+      jsonPath: .config
+      name: Config
+      priority: 1
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: KongClusterPlugin is the Schema for the kongclusterplugins API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          config:
+            description: Config contains the plugin configuration. It's a list of
+              keys and values required to configure the plugin. Please read the documentation
+              of the plugin being configured to set values in here. For any plugin
+              in Kong, anything that goes in the `config` JSON key in the Admin API
+              request, goes into this property. Only one of `config` or `configFrom`
+              may be used in a KongClusterPlugin, not both at once.
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+          configFrom:
+            description: ConfigFrom references a secret containing the plugin configuration.
+              This should be used when the plugin configuration contains sensitive
+              information, such as AWS credentials in the Lambda plugin or the client
+              secret in the OIDC plugin. Only one of `config` or `configFrom` may
+              be used in a KongClusterPlugin, not both at once.
+            properties:
+              secretKeyRef:
+                description: Specifies a name, a namespace, and a key of a secret
+                  to refer to.
+                properties:
+                  key:
+                    description: The key containing the value.
+                    type: string
+                  name:
+                    description: The secret containing the key.
+                    type: string
+                  namespace:
+                    description: The namespace containing the secret.
+                    type: string
+                required:
+                - key
+                - name
+                - namespace
+                type: object
+            type: object
+          consumerRef:
+            description: ConsumerRef is a reference to a particular consumer.
+            type: string
+          disabled:
+            description: Disabled set if the plugin is disabled or not.
+            type: boolean
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          ordering:
+            description: 'Ordering overrides the normal plugin execution order. It''s
+              only available on Kong Enterprise. `<phase>` is a request processing
+              phase (for example, `access` or `body_filter`) and `<plugin>` is the
+              name of the plugin that will run before or after the KongPlugin. For
+              example, a KongPlugin with `plugin: rate-limiting` and `before.access:
+              ["key-auth"]` will create a rate limiting plugin that limits requests
+              _before_ they are authenticated.'
+            properties:
+              after:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: PluginOrderingPhase indicates which plugins in a phase
+                  should affect the target plugin's order
+                type: object
+              before:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: PluginOrderingPhase indicates which plugins in a phase
+                  should affect the target plugin's order
+                type: object
+            type: object
+          plugin:
+            description: PluginName is the name of the plugin to which to apply the
+              config.
+            type: string
+          protocols:
+            description: Protocols configures plugin to run on requests received on
+              specific protocols.
+            items:
+              enum:
+              - http
+              - https
+              - grpc
+              - grpcs
+              - tcp
+              - tls
+              - udp
+              type: string
+            type: array
+          run_on:
+            description: RunOn configures the plugin to run on the first or the second
+              or both nodes in case of a service mesh deployment.
+            enum:
+            - first
+            - second
+            - all
+            type: string
+        required:
+        - plugin
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: kongconsumers.configuration.konghq.com
+spec:
+  group: configuration.konghq.com
+  names:
+    categories:
+    - kong-ingress-controller
+    kind: KongConsumer
+    listKind: KongConsumerList
+    plural: kongconsumers
+    shortNames:
+    - kc
+    singular: kongconsumer
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Username of a Kong Consumer
+      jsonPath: .username
+      name: Username
+      type: string
+    - description: Age
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: KongConsumer is the Schema for the kongconsumers API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          credentials:
+            description: Credentials are references to secrets containing a credential
+              to be provisioned in Kong.
+            items:
+              type: string
+            type: array
+          custom_id:
+            description: CustomID is a Kong cluster-unique existing ID for the consumer
+              - useful for mapping Kong with users in your existing database.
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          username:
+            description: Username is a Kong cluster-unique username of the consumer.
+            type: string
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: kongingresses.configuration.konghq.com
+spec:
+  group: configuration.konghq.com
+  names:
+    categories:
+    - kong-ingress-controller
+    kind: KongIngress
+    listKind: KongIngressList
+    plural: kongingresses
+    shortNames:
+    - ki
+    singular: kongingress
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: KongIngress is the Schema for the kongingresses API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          proxy:
+            description: Proxy defines additional connection options for the routes
+              to be configured in the Kong Gateway, e.g. `connection_timeout`, `retries`,
+              etc.
+            properties:
+              connect_timeout:
+                description: "The timeout in milliseconds for\testablishing a connection
+                  to the upstream server. Deprecated: use Service's \"konghq.com/connect-timeout\"
+                  annotation instead."
+                minimum: 0
+                type: integer
+              path:
+                description: '(optional) The path to be used in requests to the upstream
+                  server. Deprecated: use Service''s "konghq.com/path" annotation
+                  instead.'
+                pattern: ^/.*$
+                type: string
+              protocol:
+                description: 'The protocol used to communicate with the upstream.
+                  Deprecated: use Service''s "konghq.com/protocol" annotation instead.'
+                enum:
+                - http
+                - https
+                - grpc
+                - grpcs
+                - tcp
+                - tls
+                - udp
+                type: string
+              read_timeout:
+                description: 'The timeout in milliseconds between two successive read
+                  operations for transmitting a request to the upstream server. Deprecated:
+                  use Service''s "konghq.com/read-timeout" annotation instead.'
+                minimum: 0
+                type: integer
+              retries:
+                description: 'The number of retries to execute upon failure to proxy.
+                  Deprecated: use Service''s "konghq.com/retries" annotation instead.'
+                minimum: 0
+                type: integer
+              write_timeout:
+                description: 'The timeout in milliseconds between two successive write
+                  operations for transmitting a request to the upstream server. Deprecated:
+                  use Service''s "konghq.com/write-timeout" annotation instead.'
+                minimum: 0
+                type: integer
+            type: object
+          route:
+            description: Route define rules to match client requests. Each Route is
+              associated with a Service, and a Service may have multiple Routes associated
+              to it.
+            properties:
+              headers:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: 'Headers contains one or more lists of values indexed
+                  by header name that will cause this Route to match if present in
+                  the request. The Host header cannot be used with this attribute.
+                  Deprecated: use Ingress'' "konghq.com/headers" annotation instead.'
+                type: object
+              https_redirect_status_code:
+                description: 'HTTPSRedirectStatusCode is the status code Kong responds
+                  with when all properties of a Route match except the protocol. Deprecated:
+                  use Ingress'' "ingress.kubernetes.io/force-ssl-redirect" or "konghq.com/https-redirect-status-code"
+                  annotations instead.'
+                type: integer
+              methods:
+                description: 'Methods is a list of HTTP methods that match this Route.
+                  Deprecated: use Ingress'' "konghq.com/override-protocols" annotation
+                  instead.'
+                items:
+                  type: string
+                type: array
+              path_handling:
+                description: 'PathHandling controls how the Service path, Route path
+                  and requested path are combined when sending a request to the upstream.
+                  Deprecated: use Ingress'' "konghq.com/path-handling" annotation
+                  instead.'
+                enum:
+                - v0
+                - v1
+                type: string
+              preserve_host:
+                description: 'PreserveHost sets When matching a Route via one of the
+                  hosts domain names, use the request Host header in the upstream
+                  request headers. If set to false, the upstream Host header will
+                  be that of the Service’s host. Deprecated: use Ingress'' "konghq.com/preserve-host"
+                  annotation instead.'
+                type: boolean
+              protocols:
+                description: 'Protocols is an array of the protocols this Route should
+                  allow. Deprecated: use Ingress'' "konghq.com/protocols" annotation
+                  instead.'
+                items:
+                  enum:
+                  - http
+                  - https
+                  - grpc
+                  - grpcs
+                  - tcp
+                  - tls
+                  - udp
+                  type: string
+                type: array
+              regex_priority:
+                description: 'RegexPriority is a number used to choose which route
+                  resolves a given request when several routes match it using regexes
+                  simultaneously. Deprecated: use Ingress'' "konghq.com/regex-priority"
+                  annotation instead.'
+                type: integer
+              request_buffering:
+                description: 'RequestBuffering sets whether to enable request body
+                  buffering or not. Deprecated: use Ingress'' "konghq.com/request-buffering"
+                  annotation instead.'
+                type: boolean
+              response_buffering:
+                description: 'ResponseBuffering sets whether to enable response body
+                  buffering or not. Deprecated: use Ingress'' "konghq.com/response-buffering"
+                  annotation instead.'
+                type: boolean
+              snis:
+                description: 'SNIs is a list of SNIs that match this Route when using
+                  stream routing. Deprecated: use Ingress'' "konghq.com/snis" annotation
+                  instead.'
+                items:
+                  type: string
+                type: array
+              strip_path:
+                description: 'StripPath sets When matching a Route via one of the
+                  paths strip the matching prefix from the upstream request URL. Deprecated:
+                  use Ingress'' "konghq.com/strip-path" annotation instead.'
+                type: boolean
+            type: object
+          upstream:
+            description: Upstream represents a virtual hostname and can be used to
+              load balance incoming requests over multiple targets (e.g. Kubernetes
+              Services can be a target, or URLs can be targets).
+            properties:
+              algorithm:
+                description: Algorithm is the load balancing algorithm to use.
+                enum:
+                - round-robin
+                - consistent-hashing
+                - least-connections
+                type: string
+              hash_fallback:
+                description: 'HashFallback defines What to use as hashing input if
+                  the primary hash_on does not return a hash. Accepted values are:
+                  "none", "consumer", "ip", "header", "cookie".'
+                type: string
+              hash_fallback_header:
+                description: HashFallbackHeader is the header name to take the value
+                  from as hash input. Only required when "hash_fallback" is set to
+                  "header".
+                type: string
+              hash_fallback_query_arg:
+                description: HashFallbackQueryArg is the "hash_fallback" version of
+                  HashOnQueryArg.
+                type: string
+              hash_fallback_uri_capture:
+                description: HashFallbackURICapture is the "hash_fallback" version
+                  of HashOnURICapture.
+                type: string
+              hash_on:
+                description: 'HashOn defines what to use as hashing input. Accepted
+                  values are: "none", "consumer", "ip", "header", "cookie", "path",
+                  "query_arg", "uri_capture".'
+                type: string
+              hash_on_cookie:
+                description: The cookie name to take the value from as hash input.
+                  Only required when "hash_on" or "hash_fallback" is set to "cookie".
+                type: string
+              hash_on_cookie_path:
+                description: The cookie path to set in the response headers. Only
+                  required when "hash_on" or "hash_fallback" is set to "cookie".
+                type: string
+              hash_on_header:
+                description: HashOnHeader defines the header name to take the value
+                  from as hash input. Only required when "hash_on" is set to "header".
+                type: string
+              hash_on_query_arg:
+                description: HashOnQueryArg is the query string parameter whose value
+                  is the hash input when "hash_on" is set to "query_arg".
+                type: string
+              hash_on_uri_capture:
+                description: HashOnURICapture is the name of the capture group whose
+                  value is the hash input when "hash_on" is set to "uri_capture".
+                type: string
+              healthchecks:
+                description: Healthchecks defines the health check configurations
+                  in Kong.
+                properties:
+                  active:
+                    description: ActiveHealthcheck configures active health check
+                      probing.
+                    properties:
+                      concurrency:
+                        minimum: 1
+                        type: integer
+                      healthy:
+                        description: Healthy configures thresholds and HTTP status
+                          codes to mark targets healthy for an upstream.
+                        properties:
+                          http_statuses:
+                            items:
+                              type: integer
+                            type: array
+                          interval:
+                            minimum: 0
+                            type: integer
+                          successes:
+                            minimum: 0
+                            type: integer
+                        type: object
+                      http_path:
+                        pattern: ^/.*$
+                        type: string
+                      https_sni:
+                        type: string
+                      https_verify_certificate:
+                        type: boolean
+                      timeout:
+                        minimum: 0
+                        type: integer
+                      type:
+                        type: string
+                      unhealthy:
+                        description: Unhealthy configures thresholds and HTTP status
+                          codes to mark targets unhealthy.
+                        properties:
+                          http_failures:
+                            minimum: 0
+                            type: integer
+                          http_statuses:
+                            items:
+                              type: integer
+                            type: array
+                          interval:
+                            minimum: 0
+                            type: integer
+                          tcp_failures:
+                            minimum: 0
+                            type: integer
+                          timeouts:
+                            minimum: 0
+                            type: integer
+                        type: object
+                    type: object
+                  passive:
+                    description: PassiveHealthcheck configures passive checks around
+                      passive health checks.
+                    properties:
+                      healthy:
+                        description: Healthy configures thresholds and HTTP status
+                          codes to mark targets healthy for an upstream.
+                        properties:
+                          http_statuses:
+                            items:
+                              type: integer
+                            type: array
+                          interval:
+                            minimum: 0
+                            type: integer
+                          successes:
+                            minimum: 0
+                            type: integer
+                        type: object
+                      type:
+                        type: string
+                      unhealthy:
+                        description: Unhealthy configures thresholds and HTTP status
+                          codes to mark targets unhealthy.
+                        properties:
+                          http_failures:
+                            minimum: 0
+                            type: integer
+                          http_statuses:
+                            items:
+                              type: integer
+                            type: array
+                          interval:
+                            minimum: 0
+                            type: integer
+                          tcp_failures:
+                            minimum: 0
+                            type: integer
+                          timeouts:
+                            minimum: 0
+                            type: integer
+                        type: object
+                    type: object
+                  threshold:
+                    type: number
+                type: object
+              host_header:
+                description: HostHeader is The hostname to be used as Host header
+                  when proxying requests through Kong.
+                type: string
+              slots:
+                description: Slots is the number of slots in the load balancer algorithm.
+                minimum: 10
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: kongplugins.configuration.konghq.com
+spec:
+  group: configuration.konghq.com
+  names:
+    categories:
+    - kong-ingress-controller
+    kind: KongPlugin
+    listKind: KongPluginList
+    plural: kongplugins
+    shortNames:
+    - kp
+    singular: kongplugin
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Name of the plugin
+      jsonPath: .plugin
+      name: Plugin-Type
+      type: string
+    - description: Age
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: Indicates if the plugin is disabled
+      jsonPath: .disabled
+      name: Disabled
+      priority: 1
+      type: boolean
+    - description: Configuration of the plugin
+      jsonPath: .config
+      name: Config
+      priority: 1
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: KongPlugin is the Schema for the kongplugins API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          config:
+            description: Config contains the plugin configuration. It's a list of
+              keys and values required to configure the plugin. Please read the documentation
+              of the plugin being configured to set values in here. For any plugin
+              in Kong, anything that goes in the `config` JSON key in the Admin API
+              request, goes into this property. Only one of `config` or `configFrom`
+              may be used in a KongPlugin, not both at once.
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+          configFrom:
+            description: ConfigFrom references a secret containing the plugin configuration.
+              This should be used when the plugin configuration contains sensitive
+              information, such as AWS credentials in the Lambda plugin or the client
+              secret in the OIDC plugin. Only one of `config` or `configFrom` may
+              be used in a KongPlugin, not both at once.
+            properties:
+              secretKeyRef:
+                description: Specifies a name and a key of a secret to refer to. The
+                  namespace is implicitly set to the one of referring object.
+                properties:
+                  key:
+                    description: The key containing the value.
+                    type: string
+                  name:
+                    description: The secret containing the key.
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+            type: object
+          consumerRef:
+            description: ConsumerRef is a reference to a particular consumer.
+            type: string
+          disabled:
+            description: Disabled set if the plugin is disabled or not.
+            type: boolean
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          ordering:
+            description: 'Ordering overrides the normal plugin execution order. It''s
+              only available on Kong Enterprise. `<phase>` is a request processing
+              phase (for example, `access` or `body_filter`) and `<plugin>` is the
+              name of the plugin that will run before or after the KongPlugin. For
+              example, a KongPlugin with `plugin: rate-limiting` and `before.access:
+              ["key-auth"]` will create a rate limiting plugin that limits requests
+              _before_ they are authenticated.'
+            properties:
+              after:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: PluginOrderingPhase indicates which plugins in a phase
+                  should affect the target plugin's order
+                type: object
+              before:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: PluginOrderingPhase indicates which plugins in a phase
+                  should affect the target plugin's order
+                type: object
+            type: object
+          plugin:
+            description: PluginName is the name of the plugin to which to apply the
+              config.
+            type: string
+          protocols:
+            description: Protocols configures plugin to run on requests received on
+              specific protocols.
+            items:
+              enum:
+              - http
+              - https
+              - grpc
+              - grpcs
+              - tcp
+              - tls
+              - udp
+              type: string
+            type: array
+          run_on:
+            description: RunOn configures the plugin to run on the first or the second
+              or both nodes in case of a service mesh deployment.
+            enum:
+            - first
+            - second
+            - all
+            type: string
+        required:
+        - plugin
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: tcpingresses.configuration.konghq.com
+spec:
+  group: configuration.konghq.com
+  names:
+    categories:
+    - kong-ingress-controller
+    kind: TCPIngress
+    listKind: TCPIngressList
+    plural: tcpingresses
+    singular: tcpingress
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Address of the load balancer
+      jsonPath: .status.loadBalancer.ingress[*].ip
+      name: Address
+      type: string
+    - description: Age
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: TCPIngress is the Schema for the tcpingresses API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec is the TCPIngress specification.
+            properties:
+              rules:
+                description: A list of rules used to configure the Ingress.
+                items:
+                  description: IngressRule represents a rule to apply against incoming
+                    requests. Matching is performed based on an (optional) SNI and
+                    port.
+                  properties:
+                    backend:
+                      description: Backend defines the referenced service endpoint
+                        to which the traffic will be forwarded to.
+                      properties:
+                        serviceName:
+                          description: Specifies the name of the referenced service.
+                          minLength: 1
+                          type: string
+                        servicePort:
+                          description: Specifies the port of the referenced service.
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                      required:
+                      - serviceName
+                      - servicePort
+                      type: object
+                    host:
+                      description: Host is the fully qualified domain name of a network
+                        host, as defined by RFC 3986. If a Host is not specified,
+                        then port-based TCP routing is performed. Kong doesn't care
+                        about the content of the TCP stream in this case. If a Host
+                        is specified, the protocol must be TLS over TCP. A plain-text
+                        TCP request cannot be routed based on Host. It can only be
+                        routed based on Port.
+                      type: string
+                    port:
+                      description: Port is the port on which to accept TCP or TLS
+                        over TCP sessions and route. It is a required field. If a
+                        Host is not specified, the requested are routed based only
+                        on Port.
+                      format: int32
+                      maximum: 65535
+                      minimum: 1
+                      type: integer
+                  required:
+                  - backend
+                  - port
+                  type: object
+                type: array
+              tls:
+                description: TLS configuration. This is similar to the `tls` section
+                  in the Ingress resource in networking.v1beta1 group. The mapping
+                  of SNIs to TLS cert-key pair defined here will be used for HTTP
+                  Ingress rules as well. Once can define the mapping in this resource
+                  or the original Ingress resource, both have the same effect.
+                items:
+                  description: IngressTLS describes the transport layer security.
+                  properties:
+                    hosts:
+                      description: Hosts are a list of hosts included in the TLS certificate.
+                        The values in this list must match the name/s used in the
+                        tlsSecret. Defaults to the wildcard host setting for the loadbalancer
+                        controller fulfilling this Ingress, if left unspecified.
+                      items:
+                        type: string
+                      type: array
+                    secretName:
+                      description: SecretName is the name of the secret used to terminate
+                        SSL traffic.
+                      type: string
+                  type: object
+                type: array
+            type: object
+          status:
+            description: TCPIngressStatus defines the observed state of TCPIngress.
+            properties:
+              loadBalancer:
+                description: LoadBalancer contains the current status of the load-balancer.
+                properties:
+                  ingress:
+                    description: Ingress is a list containing ingress points for the
+                      load-balancer. Traffic intended for the service should be sent
+                      to these ingress points.
+                    items:
+                      description: 'LoadBalancerIngress represents the status of a
+                        load-balancer ingress point: traffic intended for the service
+                        should be sent to an ingress point.'
+                      properties:
+                        hostname:
+                          description: Hostname is set for load-balancer ingress points
+                            that are DNS based (typically AWS load-balancers)
+                          type: string
+                        ip:
+                          description: IP is set for load-balancer ingress points
+                            that are IP based (typically GCE or OpenStack load-balancers)
+                          type: string
+                        ports:
+                          description: Ports is a list of records of service ports
+                            If used, every port defined in the service should have
+                            an entry in it
+                          items:
+                            properties:
+                              error:
+                                description: 'Error is to record the problem with
+                                  the service port The format of the error shall comply
+                                  with the following rules: - built-in error values
+                                  shall be specified in this file and those shall
+                                  use CamelCase names - cloud provider specific error
+                                  values must have names that comply with the format
+                                  foo.example.com/CamelCase. --- The regex it matches
+                                  is (dns1123SubdomainFmt/)?(qualifiedNameFmt)'
+                                maxLength: 316
+                                pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                                type: string
+                              port:
+                                description: Port is the port number of the service
+                                  port of which status is recorded here
+                                format: int32
+                                type: integer
+                              protocol:
+                                default: TCP
+                                description: 'Protocol is the protocol of the service
+                                  port of which status is recorded here The supported
+                                  values are: "TCP", "UDP", "SCTP"'
+                                type: string
+                            required:
+                            - port
+                            - protocol
+                            type: object
+                          type: array
+                          x-kubernetes-list-type: atomic
+                      type: object
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: udpingresses.configuration.konghq.com
+spec:
+  group: configuration.konghq.com
+  names:
+    categories:
+    - kong-ingress-controller
+    kind: UDPIngress
+    listKind: UDPIngressList
+    plural: udpingresses
+    singular: udpingress
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Address of the load balancer
+      jsonPath: .status.loadBalancer.ingress[*].ip
+      name: Address
+      type: string
+    - description: Age
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: UDPIngress is the Schema for the udpingresses API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec is the UDPIngress specification.
+            properties:
+              rules:
+                description: A list of rules used to configure the Ingress.
+                items:
+                  description: UDPIngressRule represents a rule to apply against incoming
+                    requests wherein no Host matching is available for request routing,
+                    only the port is used to match requests.
+                  properties:
+                    backend:
+                      description: Backend defines the Kubernetes service which accepts
+                        traffic from the listening Port defined above.
+                      properties:
+                        serviceName:
+                          description: Specifies the name of the referenced service.
+                          minLength: 1
+                          type: string
+                        servicePort:
+                          description: Specifies the port of the referenced service.
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                      required:
+                      - serviceName
+                      - servicePort
+                      type: object
+                    port:
+                      description: Port indicates the port for the Kong proxy to accept
+                        incoming traffic on, which will then be routed to the service
+                        Backend.
+                      format: int32
+                      maximum: 65535
+                      minimum: 1
+                      type: integer
+                  required:
+                  - backend
+                  - port
+                  type: object
+                type: array
+            type: object
+          status:
+            description: UDPIngressStatus defines the observed state of UDPIngress.
+            properties:
+              loadBalancer:
+                description: LoadBalancer contains the current status of the load-balancer.
+                properties:
+                  ingress:
+                    description: Ingress is a list containing ingress points for the
+                      load-balancer. Traffic intended for the service should be sent
+                      to these ingress points.
+                    items:
+                      description: 'LoadBalancerIngress represents the status of a
+                        load-balancer ingress point: traffic intended for the service
+                        should be sent to an ingress point.'
+                      properties:
+                        hostname:
+                          description: Hostname is set for load-balancer ingress points
+                            that are DNS based (typically AWS load-balancers)
+                          type: string
+                        ip:
+                          description: IP is set for load-balancer ingress points
+                            that are IP based (typically GCE or OpenStack load-balancers)
+                          type: string
+                        ports:
+                          description: Ports is a list of records of service ports
+                            If used, every port defined in the service should have
+                            an entry in it
+                          items:
+                            properties:
+                              error:
+                                description: 'Error is to record the problem with
+                                  the service port The format of the error shall comply
+                                  with the following rules: - built-in error values
+                                  shall be specified in this file and those shall
+                                  use CamelCase names - cloud provider specific error
+                                  values must have names that comply with the format
+                                  foo.example.com/CamelCase. --- The regex it matches
+                                  is (dns1123SubdomainFmt/)?(qualifiedNameFmt)'
+                                maxLength: 316
+                                pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                                type: string
+                              port:
+                                description: Port is the port number of the service
+                                  port of which status is recorded here
+                                format: int32
+                                type: integer
+                              protocol:
+                                default: TCP
+                                description: 'Protocol is the protocol of the service
+                                  port of which status is recorded here The supported
+                                  values are: "TCP", "UDP", "SCTP"'
+                                type: string
+                            required:
+                            - port
+                            - protocol
+                            type: object
+                          type: array
+                          x-kubernetes-list-type: atomic
+                      type: object
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+
+---
+# Source: kong/templates/ingress-controller-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kong
+  namespace: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+automountServiceAccountToken: true
+---
+# Source: kong/charts/postgresql/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kong-postgresql
+  namespace: "kong"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.5.7
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  postgres-password: "WVVCZm5YQ2xZVw=="
+  password: "UEZ6ZmR3RUJNUg=="
+  # We don't auto-generate LDAP password when it's not provided as we do for other passwords
+---
+# Source: kong/templates/kong-script-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-scripts
+  namespace: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+data:
+  kong-container-health.sh: |-
+    #!/bin/bash
+
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    # Load libraries
+    . /opt/bitnami/scripts/libos.sh
+    . /opt/bitnami/scripts/libkong.sh
+
+    # Load Kong environment variables
+    . /opt/bitnami/scripts/kong-env.sh
+
+    is_kong_running
+
+  ingress-container-wait-for-kong.sh: |-
+    #!/bin/bash
+
+    echo "Waiting for the Kong container to be ready"
+    if wait-for-port --timeout=300 --host=127.0.0.1 --state=inuse 8000; then
+      echo "Kong container ready"
+    else
+      echo "Kong not ready after 300 seconds"
+      exit 1
+    fi
+
+  ingress-container-start.sh: |-
+    #!/bin/bash
+
+    . /health/ingress-container-wait-for-kong.sh
+
+    kong-ingress-controller
+---
+# Source: kong/templates/ingress-controller-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - ingressclassparameterses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongconsumers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongconsumers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongingresses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongplugins
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongplugins/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - tcpingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - tcpingresses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - udpingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - udpingresses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongclusterplugins
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - configuration.konghq.com
+  resources:
+  - kongclusterplugins/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingressclasses
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Source: kong/templates/ingress-controller-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kong
+subjects:
+  - kind: ServiceAccount
+    name: kong
+    namespace: kong
+---
+# Source: kong/templates/ingress-controller-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kong
+  namespace: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - pods
+      - secrets
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    resourceNames:
+      - "kong-ingress-controller-leader-kong-kong"
+    verbs:
+      - get
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+    verbs:
+      - get
+  # Begin KIC 2.x leader permissions
+  - apiGroups:
+      - ""
+      - coordination.k8s.io
+    resources:
+      - configmaps
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+---
+# Source: kong/templates/ingress-controller-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kong
+  namespace: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kong
+subjects:
+  - kind: ServiceAccount
+    name: kong
+    namespace: kong
+---
+# Source: kong/charts/postgresql/templates/primary/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-postgresql-hl
+  namespace: "kong"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.5.7
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+    # Use this annotation in addition to the actual publishNotReadyAddresses
+    # field below because the annotation will stop being respected soon but the
+    # field is broken in some versions of Kubernetes:
+    # https://github.com/kubernetes/kubernetes/issues/58662
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  # We want all pods in the StatefulSet to have their addresses published for
+  # the sake of the other Postgresql pods even before they're ready, since they
+  # have to be able to talk to each other in order to become ready.
+  publishNotReadyAddresses: true
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+  selector:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/component: primary
+---
+# Source: kong/charts/postgresql/templates/primary/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-postgresql
+  namespace: "kong"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.5.7
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/component: primary
+---
+# Source: kong/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong
+  namespace: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: ""
+  sessionAffinity: None
+  ports:
+    - port: 80
+      targetPort: http-proxy
+      protocol: TCP
+      name: http-proxy
+    - port: 443
+      targetPort: https-proxy
+      protocol: TCP
+      name: https-proxy
+  selector:
+    app.kubernetes.io/name: kong
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/component: server
+---
+# Source: kong/templates/dep-ds.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+  namespace: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kong
+      app.kubernetes.io/instance: kong
+      app.kubernetes.io/component: server
+  strategy:
+    rollingUpdate: {}
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kong
+        helm.sh/chart: kong-9.4.0
+        app.kubernetes.io/instance: kong
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: server
+      annotations:
+        checksum/configmap-kong: 9c558250e5ff23993af62fb5deaca0e31a5f933a9672b583dd6fcfe6eaf765f3
+    spec:
+      
+      serviceAccountName: kong
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: kong
+                    app.kubernetes.io/instance: kong
+                    app.kubernetes.io/component: server
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      containers:
+        - name: kong
+          image: docker.io/bitnami/kong:3.3.0-debian-11-r10
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: KONG_DATABASE
+              value: "postgres"
+            - name: KONG_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kong-postgresql
+                  key: password
+            - name: KONG_PG_HOST
+              value: "kong-postgresql"
+            - name: KONG_PG_PORT
+              value: "5432"
+            - name: KONG_PG_USER
+              value: "kong"
+          ports:
+            - name: http-proxy
+              containerPort: 8000
+              protocol: TCP
+            - name: https-proxy
+              containerPort: 8443
+              protocol: TCP
+            - name: http-admin
+              containerPort: 8001
+              protocol: TCP
+            - name: https-admin
+              containerPort: 8444
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - /health/kong-container-health.sh
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - /health/kong-container-health.sh
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - kong quit
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: health
+              mountPath: /health
+        - name: kong-ingress-controller
+          image: docker.io/bitnami/kong-ingress-controller:2.10.0-debian-11-r4
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          command:
+            - bash
+            - -ec
+            - /health/ingress-container-start.sh
+          env:
+            - name: CONTROLLER_KONG_ADMIN_URL
+              value: http://127.0.0.1:8001
+            - name: CONTROLLER_PUBLISH_SERVICE
+              value: "kong/kong"
+            - name: CONTROLLER_INGRESS_CLASS
+              value: kong
+            - name: CONTROLLER_ELECTION_ID
+              value: kong-ingress-controller-leader-kong
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - name: http-health
+              containerPort: 10254
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: "/healthz"
+              port: http-health
+              scheme: HTTP
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            httpGet:
+              path: "/healthz"
+              port: http-health
+              scheme: HTTP
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: health
+              mountPath: /health
+      volumes:
+        - name: health
+          configMap:
+            name: kong-scripts
+            defaultMode: 0755
+---
+# Source: kong/charts/postgresql/templates/primary/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kong-postgresql
+  namespace: "kong"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.5.7
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+spec:
+  replicas: 1
+  serviceName: kong-postgresql-hl
+  updateStrategy:
+    rollingUpdate: {}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/instance: kong
+      app.kubernetes.io/component: primary
+  template:
+    metadata:
+      name: kong-postgresql
+      labels:
+        app.kubernetes.io/name: postgresql
+        helm.sh/chart: postgresql-12.5.7
+        app.kubernetes.io/instance: kong
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: primary
+    spec:
+      serviceAccountName: default
+      
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: postgresql
+                    app.kubernetes.io/instance: kong
+                    app.kubernetes.io/component: primary
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      hostNetwork: false
+      hostIPC: false
+      containers:
+        - name: postgresql
+          image: docker.io/bitnami/postgresql:14.8.0-debian-11-r14
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: POSTGRESQL_PORT_NUMBER
+              value: "5432"
+            - name: POSTGRESQL_VOLUME_DIR
+              value: "/bitnami/postgresql"
+            - name: PGDATA
+              value: "/bitnami/postgresql/data"
+            # Authentication
+            - name: POSTGRES_USER
+              value: "kong"
+            - name: POSTGRES_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kong-postgresql
+                  key: postgres-password
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kong-postgresql
+                  key: password
+            - name: POSTGRES_DB
+              value: "kong"
+            # Replication
+            # Initdb
+            # Standby
+            # LDAP
+            - name: POSTGRESQL_ENABLE_LDAP
+              value: "no"
+            # TLS
+            - name: POSTGRESQL_ENABLE_TLS
+              value: "no"
+            # Audit
+            - name: POSTGRESQL_LOG_HOSTNAME
+              value: "false"
+            - name: POSTGRESQL_LOG_CONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_LOG_DISCONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_PGAUDIT_LOG_CATALOG
+              value: "off"
+            # Others
+            - name: POSTGRESQL_CLIENT_MIN_MESSAGES
+              value: "error"
+            - name: POSTGRESQL_SHARED_PRELOAD_LIBRARIES
+              value: "pgaudit"
+          ports:
+            - name: tcp-postgresql
+              containerPort: 5432
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - exec pg_isready -U "kong" -d "dbname=kong" -h 127.0.0.1 -p 5432
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - -e
+                
+                - |
+                  exec pg_isready -U "kong" -d "dbname=kong" -h 127.0.0.1 -p 5432
+                  [ -f /opt/bitnami/postgresql/tmp/.initialized ] || [ -f /bitnami/postgresql/.initialized ]
+          resources:
+            limits: {}
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+            - name: data
+              mountPath: /bitnami/postgresql
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: kong/templates/migrate-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kong-migrate
+  namespace: kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-9.4.0
+    app.kubernetes.io/instance: kong
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+  annotations:
+    helm.sh/hook: post-install, pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kong
+        helm.sh/chart: kong-9.4.0
+        app.kubernetes.io/instance: kong
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: migration
+    spec:
+      
+      restartPolicy: OnFailure
+      containers:
+        - name: kong-migrate
+          image: docker.io/bitnami/kong:3.3.0-debian-11-r10
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: KONG_MIGRATE
+              value: "yes"
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: KONG_EXIT_AFTER_MIGRATE
+              value: "yes"
+            - name: KONG_DATABASE
+              value: "postgres"
+            - name: KONG_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kong-postgresql
+                  key: password
+            - name: KONG_PG_HOST
+              value: "kong-postgresql"
+            - name: KONG_PG_PORT
+              value: "5432"
+            - name: KONG_PG_USER
+              value: "kong"
+          resources:
+            limits: {}
+            requests: {}

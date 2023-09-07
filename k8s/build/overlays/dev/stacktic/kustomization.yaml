@@ -1,0 +1,15 @@
+resources:
+  - ../../../base/stacktic
+
+secretGenerator:
+  - name: registry-credential
+    namespace: build
+    behavior: replace
+    files:
+      - .dockerconfigjson=secret/registry.json
+    type: kubernetes.io/dockerconfigjson
+  - name: git-credential
+    namespace: build
+    behavior: replace
+    envs:
+      - secret/git.env

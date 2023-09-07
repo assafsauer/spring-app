@@ -1,0 +1,34 @@
+resources:
+  - namespace.yaml
+  - grafana.yaml
+
+secretGenerator:
+  - name: grafana-datasources
+    namespace: grafana
+    files:
+      - config/datasources.yaml
+  - name: grafana-admin-password
+    namespace: grafana
+    envs:
+      - secret/grafana.env
+
+configMapGenerator:
+  - name: dashboard-kubernetes
+    namespace: grafana
+    files:
+      - dashboard/kubernetes.json
+  - name: dashboard-jvm
+    namespace: grafana
+    files:
+      - dashboard/jvm.json
+  - name: dashboard-postgresql
+    namespace: grafana
+    files:
+      - dashboard/postgresql.json
+  - name: dashboard-kube-state-metrics
+    namespace: grafana
+    files:
+      - dashboard/kube-state-metrics.json
+
+generatorOptions:
+  disableNameSuffixHash: true

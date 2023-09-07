@@ -1,0 +1,9 @@
+resources:
+  - stacktic
+  - kong
+  - cert-manager
+  - spring
+  - keycloak
+  - postgresql
+  - prometheus
+  - grafana

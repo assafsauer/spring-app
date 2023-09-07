@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-certificate
+  namespace: cert-manager
+spec:
+  secretName: wildcard-tls-secret
+  commonName: "*.stacktic.beenotice.eu"
+  dnsNames:
+    - "*.stacktic.beenotice.eu"
+  issuerRef:
+    name: issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

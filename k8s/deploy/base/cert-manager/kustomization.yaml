@@ -1,0 +1,5 @@
+resources:
+  - namespace.yaml
+  - cert-manager.yaml
+  - selfsigned-issuer.yaml
+  - certificate.yaml

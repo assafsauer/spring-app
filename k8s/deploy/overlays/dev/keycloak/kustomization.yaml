@@ -1,0 +1,9 @@
+resources:
+  - ../../../base/keycloak
+
+secretGenerator:
+  - name: keycloak-admin-password
+    namespace: keycloak
+    behavior: replace
+    envs:
+      - secret/keycloak.env

@@ -1,0 +1,14 @@
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+spring:
+  datasource:
+    url: "jdbc:postgresql://localhost/spring_db?currentSchema=demo"
+    username: "spring"
+    password: "spring"

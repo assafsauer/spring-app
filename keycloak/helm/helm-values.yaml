@@ -1,0 +1,31 @@
+auth:
+  existingSecret: "keycloak-admin-password"
+
+service:
+  type: "ClusterIP"
+
+extraVolumeMounts:
+  - name: config
+    mountPath: "/opt/bitnami/keycloak/data/import"
+    readOnly: true
+extraVolumes:
+  - name: config
+    configMap:
+      name: keycloak-realm
+      items:
+        - key: "realm.json"
+          path: "realm.json"
+extraStartupArgs: "--import-realm --hostname-admin-url=https://keycloak.stacktic.beenotice.eu --hostname-url=https://keycloak.stacktic.beenotice.eu"
+
+production: true
+proxy: edge
+ingress:
+  enabled: true
+  hostname: keycloak.stacktic.beenotice.eu
+  ingressClassName: kong
+  annotations:
+    cert-manager.io/cluster-issuer: "issuer"
+  extraTls:
+    - hosts:
+        - keycloak.stacktic.beenotice.eu
+      secretName: wildcard-tls-secret

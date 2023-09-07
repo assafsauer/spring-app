@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: "spring"
+  profiles:
+    active: "local"
+  datasource:
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+
+# Application configuration - Demo
+app:
+  hello: "Hello, %s!"

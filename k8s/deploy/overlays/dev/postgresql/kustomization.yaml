@@ -1,0 +1,14 @@
+resources:
+  - ../../../base/postgresql
+
+secretGenerator:
+  - name: postgresql-initdb
+    namespace: postgresql
+    behavior: replace
+    files:
+      - config/initdb.sql
+  - name: postgresql-admin-password
+    namespace: postgresql
+    behavior: replace
+    envs:
+      - secret/postgresql.env

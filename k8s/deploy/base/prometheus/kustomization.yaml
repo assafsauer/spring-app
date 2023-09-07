@@ -1,0 +1,13 @@
+resources:
+  - namespace.yaml
+  - prometheus.yaml
+  - kube-state-metrics.yaml
+
+secretGenerator:
+  - name: prometheus-scrape-config
+    namespace: prometheus
+    files:
+      - secret/additional-scrape-configs.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

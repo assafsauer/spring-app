@@ -1,0 +1,23 @@
+admin:
+  existingSecret: "grafana-admin-password"
+
+service:
+  type: "ClusterIP"
+
+dashboardsProvider:
+  enabled: true
+
+# For the dashboards we need one ConfigMap per file
+dashboardsConfigMaps:
+  - configMapName: dashboard-kubernetes
+    fileName: "kubernetes.json"
+  - configMapName: dashboard-jvm
+    fileName: "jvm.json"
+  - configMapName: dashboard-postgresql
+    fileName: "postgresql.json"
+  - configMapName: dashboard-kube-state-metrics
+    fileName: "kube-state-metrics.json"
+
+# For the datasources we can use just one secret with all the files
+datasources:
+  secretName: "grafana-datasources"

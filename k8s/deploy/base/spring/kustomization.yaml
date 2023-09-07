@@ -1,0 +1,22 @@
+resources:
+  - namespace.yaml
+  - spring.yaml
+
+configMapGenerator:
+  - name: spring-config
+    namespace: spring
+    files:
+      - config/application-cloud.yaml
+
+secretGenerator:
+  - name: spring-secret
+    namespace: spring
+    files:
+      - secret/secret-cloud.yaml
+  - name: registry-credential
+    namespace: spring
+    files:
+      - .dockerconfigjson=secret/registry.json
+    type: kubernetes.io/dockerconfigjson
+    options:
+      disableNameSuffixHash: true

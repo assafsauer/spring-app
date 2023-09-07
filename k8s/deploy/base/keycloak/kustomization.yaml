@@ -1,0 +1,18 @@
+resources:
+  - namespace.yaml
+  - keycloak.yaml
+
+secretGenerator:
+  - name: keycloak-admin-password
+    namespace: keycloak
+    envs:
+      - secret/keycloak.env
+
+configMapGenerator:
+  - name: keycloak-realm
+    namespace: keycloak
+    files:
+      - config/realm.json
+
+generatorOptions:
+  disableNameSuffixHash: true

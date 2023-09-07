@@ -1,0 +1,7 @@
+serviceMonitor:
+  enabled: true
+  namespace: prometheus
+  interval: 15s
+  relabelings:
+    - targetLabel: cluster
+      replacement: default
