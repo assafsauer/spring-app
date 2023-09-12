@@ -5,10 +5,10 @@ metadata:
     app.kubernetes.io/instance: spring
 resources:
 #  - stacktic
-  - kong
-  - cert-manager
-  - spring
-  - keycloak
-  - postgresql
-  - prometheus
+#  - kong
+#  - cert-manager
+#  - spring
+#  - keycloak
+#  - postgresql
+#  - prometheus
   - grafana
