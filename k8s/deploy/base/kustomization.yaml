@@ -10,5 +10,5 @@ resources:
 #  - spring
 #  - keycloak
 #  - postgresql
-#  - prometheus
+  - prometheus
   - grafana
