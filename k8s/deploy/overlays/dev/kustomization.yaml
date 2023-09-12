@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: spring
 resources:
-  - stacktic
+#  - stacktic
   - kong
   - cert-manager
   - spring
