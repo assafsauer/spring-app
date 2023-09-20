@@ -24,7 +24,7 @@ spec:
     spec:
       serviceAccountName: spring
       containers:
-        - image: index.docker.io/beenotice/spring:0.0.1-SNAPSHOT
+        - image: index.docker.io/asauer/spring:latest
           name: app
           resources:
             limits:
