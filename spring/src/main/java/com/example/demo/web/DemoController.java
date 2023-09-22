@@ -16,7 +16,7 @@ public class DemoController {
 
     private final AtomicLong counter = new AtomicLong();
 
-    @GetMapping(value = { "/", "/greeting8" })
+    @GetMapping(value = { "/", "/greeting9" })
     public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
         return new Greeting(counter.incrementAndGet(), String.format(template, name));
     }
